@@ -23,19 +23,20 @@ export class UsersController {
     return prisma.user.findMany();
   }
 
-  @Post()
-  async createUser(
-    @Body() createUserDto: { name: string; emoji: number },
-  ): Promise<any> {
-    const { name, emoji } = createUserDto;
-    return prisma.user.create({
-      data: {
-        name: name,
-        emoji: emoji,
-        photo: '',
-      },
-    });
-  }
+  // @Post()
+  // async createUser(
+  //   @Body() createUserDto: { name: string; emoji: number },
+  // ): Promise<any> {
+  //   const { name, emoji } = createUserDto;
+  //   return prisma.user.create({
+  //     data: {
+  //       name: name,
+  //       email:email
+  //       emoji: emoji,
+  //       photo: '',
+  //     },
+  //   });
+  // }
 
   @Put(':id')
   async updateUser(
