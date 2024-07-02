@@ -20,6 +20,7 @@ import { VerifyUserDto } from './dto/verify-user.dto';
 import axios from 'axios';
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginTypes } from './type/login-types.enum';
+import { SessionUserDTO } from './type/session-user.type';
 
 @Injectable()
 export class AuthService {
@@ -137,15 +138,15 @@ export class AuthService {
   ): Promise<CognitoUserSession> {
     try {
       const { email, password } = customer;
-      const user = await this.prisma.user.findUnique({
-        where: { email: email },
-      });
-      if (user.loginType === LoginTypes.GOOGLE) {
-        throw new HttpException(
-          'This email previously registered with google, Please login with google',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      // const user = await this.prisma.user.findUnique({
+      //   where: { email: email },
+      // });
+      // if (user.loginType === LoginTypes.GOOGLE) {
+      //   throw new HttpException(
+      //     'This email previously registered with google, Please login with google',
+      //     HttpStatus.BAD_REQUEST,
+      //   );
+      // }
       const authenticationDetails = new AuthenticationDetails({
         Username: email,
         Password: password,
@@ -205,6 +206,7 @@ export class AuthService {
         id: customer.id,
         name: customer.name,
         emoji: customer.emoji,
+        photo: customer.photo,
       };
       return user;
     } catch (error) {
@@ -412,6 +414,8 @@ export class AuthService {
               name: `${user.name.givenName} ${user.name.familyName}`,
               loginType: LoginTypes.GOOGLE,
               password: encryptedPassword,
+              emoji: 1,
+              photo: user.picture,
             },
           });
 
@@ -424,6 +428,30 @@ export class AuthService {
       const session = await this.UserSignIn(email, password);
       return session;
     } catch (error) {
+      throw new HttpException(error.message, error?.status ?? 400);
+    }
+  }
+
+  async getUserByToken({ accessToken, email }: SessionUserDTO): Promise<User> {
+    try {
+      if (await this.isTokenExpired(accessToken)) {
+        throw new HttpException('Token is expired', HttpStatus.UNAUTHORIZED);
+      }
+
+      const customer = await this.prisma.user.findUnique({
+        where: { email: email },
+      });
+
+      if (customer && customer.loginType === LoginTypes.MANUAL) {
+        throw new HttpException(
+          'This email previously registered with email and password, Please login with your password',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return customer;
+    } catch (error) {
+      console.log(error);
       throw new HttpException(error.message, error?.status ?? 400);
     }
   }

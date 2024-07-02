@@ -25,6 +25,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { CognitoUser } from 'amazon-cognito-identity-js';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { GoogleOauthGuard } from './guards/google.guard';
+import { SessionUserDTO } from './type/session-user.type';
 
 @Controller('auth')
 export class AuthController {
@@ -165,6 +166,16 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
     });
-    return await this.authService.getUserByEmail(req.user.email);
+
+    res.redirect(
+      process.env.REDIRECT_URL +
+        `?access_token=${req.user._accessToken}&email=${req.user.email}`,
+    );
+    return session;
+  }
+
+  @Post('login/google')
+  async googleLogin(@Body() session: SessionUserDTO): Promise<User> {
+    return await this.authService.getUserByToken(session);
   }
 }
