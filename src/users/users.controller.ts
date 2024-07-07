@@ -9,34 +9,33 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { AwsService } from 'src/aws/aws.service';
+import { UserService } from './user.service';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 const prisma = new PrismaClient();
 
 @Controller('users')
 export class UsersController {
-  constructor(private awsService: AwsService) {}
+  constructor(
+    private awsService: AwsService,
+    private readonly userService: UserService,
+  ) {}
 
-  @Get()
-  async findAllUsers(): Promise<any[]> {
-    return prisma.user.findMany();
-  }
-
-  // @Post()
-  // async createUser(
-  //   @Body() createUserDto: { name: string; emoji: number },
-  // ): Promise<any> {
-  //   const { name, emoji } = createUserDto;
-  //   return prisma.user.create({
-  //     data: {
-  //       name: name,
-  //       email:email
-  //       emoji: emoji,
-  //       photo: '',
-  //     },
-  //   });
+  // @Get()
+  // async findAllUsers(): Promise<any[]> {
+  //   return prisma.user.findMany();
   // }
+
+  @Get('profile')
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(60000)
+  async findUser(@Body() dto): Promise<User> {
+    console.time();
+    const { email } = dto;
+    return this.userService.getProfileByEmail(email);
+  }
 
   @Put(':id')
   async updateUser(

@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/cache-manager": "^2.2.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
@@ -30,6 +31,8 @@
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-sdk": "^2.1646.0",
     "axios": "^1.7.2",
+    "cache-manager": "^5.7.1",
+    "cache-manager-redis-yet": "^5.1.2",
     "class-validator": "^0.14.1",
     "jwks-rsa": "^3.1.0",
     "passport": "^0.7.0",
@@ -38,7 +41,8 @@
     "prisma": "^5.15.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "simple-crypto-js": "^3.0.1"
+    "simple-crypto-js": "^3.0.1",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

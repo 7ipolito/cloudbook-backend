@@ -151,7 +151,6 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<any> {
     const session = await this.authService.googleLogin(req.user);
-
     res.cookie('refresh_token', session.getRefreshToken().getToken(), {
       httpOnly: true,
       maxAge: 3600 * 1000 * 48, // 2 days
